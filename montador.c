@@ -3,39 +3,39 @@
 #include <string.h>
 #include <stdint.h> // Para uint32_t, uint8_t
 
-// --- Estrutura para armazenar RÛtulos ---
-#define MAX_ROTULOS 100 // N˙mero m·ximo de rÛtulos que o montador pode lidar
+// --- Estrutura para armazenar R√≥tulos ---
+#define MAX_ROTULOS 100 // N√∫mero m√°ximo de r√≥tulos que o montador pode lidar
 typedef struct {
-    char nome[50];    // Nome do rÛtulo
-    int endereco;     // EndereÁo (em bytes) do rÛtulo
+    char nome[50];    // Nome do r√≥tulo
+    int endereco;     // Endere√ßo (em bytes) do r√≥tulo
 } Rotulo;
 
 Rotulo rotulos[MAX_ROTULOS];
 int contador_rotulos = 0;
 
-// FunÁ„o para adicionar um rÛtulo ‡ tabela
+// Fun√ß√£o para adicionar um r√≥tulo √† tabela
 void adicionar_rotulo(const char *nome_rotulo, int endereco_rotulo) {
     if (contador_rotulos < MAX_ROTULOS) {
         strcpy(rotulos[contador_rotulos].nome, nome_rotulo);
         rotulos[contador_rotulos].endereco = endereco_rotulo;
         contador_rotulos++;
     } else {
-        fprintf(stderr, "Erro: Limite de rÛtulos excedido. Aumente MAX_ROTULOS.\n");
+        fprintf(stderr, "Erro: Limite de r√≥tulos excedido. Aumente MAX_ROTULOS.\n");
     }
 }
 
-// FunÁ„o para buscar o endereÁo de um rÛtulo
+// Fun√ß√£o para buscar o endere√ßo de um r√≥tulo
 int buscar_endereco_rotulo(const char *nome_rotulo) {
     for (int i = 0; i < contador_rotulos; i++) {
         if (strcmp(rotulos[i].nome, nome_rotulo) == 0) {
             return rotulos[i].endereco;
         }
     }
-    return -1; // RÛtulo n„o encontrado
+    return -1; // R√≥tulo n√£o encontrado
 }
 
-// --- FunÁıes Auxiliares ---
-// Converte o nome de um registrador (ABI ou xN) para seu n˙mero (0-31)
+// --- Fun√ß√µes Auxiliares ---
+// Converte o nome de um registrador (ABI ou xN) para seu n√∫mero (0-31)
 int obter_numero_registrador(const char *nome_reg) {
     if (strcmp(nome_reg, "zero") == 0) return 0;
     if (strcmp(nome_reg, "ra") == 0) return 1;
@@ -45,7 +45,7 @@ int obter_numero_registrador(const char *nome_reg) {
     if (strcmp(nome_reg, "t0") == 0) return 5;
     if (strcmp(nome_reg, "t1") == 0) return 6;
     if (strcmp(nome_reg, "t2") == 0) return 7;
-    if (strcmp(nome_reg, "s0") == 0 || strcmp(nome_reg, "fp") == 0) return 8; // fp È alias para s0
+    if (strcmp(nome_reg, "s0") == 0 || strcmp(nome_reg, "fp") == 0) return 8; // fp √© alias para s0
     if (strcmp(nome_reg, "s1") == 0) return 9;
     if (strcmp(nome_reg, "a0") == 0) return 10;
     if (strcmp(nome_reg, "a1") == 0) return 11;
@@ -77,10 +77,10 @@ int obter_numero_registrador(const char *nome_reg) {
             return num_reg;
         }
     }
-    return -1; // Nome de registrador inv·lido
+    return -1; // Nome de registrador inv√°lido
 }
 
-// Converte um n˙mero decimal para uma string bin·ria com um n˙mero especÌfico de bits
+// Converte um n√∫mero decimal para uma string bin√°ria com um n√∫mero espec√≠fico de bits
 void dec_para_bin_n_bits(int num_bits, int decimal, char *string_binaria) {
     for (int i = num_bits - 1; i >= 0; i--) {
         string_binaria[num_bits - 1 - i] = ((decimal >> i) & 1) ? '1' : '0';
@@ -88,9 +88,9 @@ void dec_para_bin_n_bits(int num_bits, int decimal, char *string_binaria) {
     string_binaria[num_bits] = '\0'; // Terminador nulo
 }
 
-// --- FunÁ„o da Primeira Passagem (Coleta de RÛtulos) ---
-// LÍ o arquivo de entrada, identifica todos os rÛtulos e armazena seus nomes e endereÁos.
-// EndereÁos s„o contados em bytes, assumindo 4 bytes por instruÁ„o.
+// --- Fun√ß√£o da Primeira Passagem (Coleta de R√≥tulos) ---
+// L√™ o arquivo de entrada, identifica todos os r√≥tulos e armazena seus nomes e endere√ßos.
+// Endere√ßos s√£o contados em bytes, assumindo 4 bytes por instru√ß√£o.
 void primeira_passagem(const char *nome_arquivo_entrada) {
     FILE *arquivo_entrada = fopen(nome_arquivo_entrada, "r");
     if (arquivo_entrada == NULL) {
@@ -99,53 +99,53 @@ void primeira_passagem(const char *nome_arquivo_entrada) {
     }
 
     char linha[256];
-    int endereco_atual = 0; // EndereÁo da instruÁ„o atual em bytes
+    int endereco_atual = 0; // Endere√ßo da instru√ß√£o atual em bytes
 
     while (fgets(linha, sizeof(linha), arquivo_entrada) != NULL) {
-        // Remove nova linha e espaÁos em branco no final
+        // Remove nova linha e espa√ßos em branco no final
         linha[strcspn(linha, "\n\r")] = 0; 
         char *inicio_linha = linha;
-        while (*inicio_linha == ' ' || *inicio_linha == '\t') inicio_linha++; // Pula espaÁos no inÌcio
+        while (*inicio_linha == ' ' || *inicio_linha == '\t') inicio_linha++; // Pula espa√ßos no in√≠cio
 
-        // Ignora linhas vazias ou coment·rios
+        // Ignora linhas vazias ou coment√°rios
         if (strlen(inicio_linha) == 0 || inicio_linha[0] == '#' || inicio_linha[0] == ';') {
             continue;
         }
         
-        // Cria uma cÛpia da linha para tokenizaÁ„o, pois strtok modifica a string
+        // Cria uma c√≥pia da linha para tokeniza√ß√£o, pois strtok modifica a string
         char linha_temporaria[256];
         strcpy(linha_temporaria, inicio_linha);
 
-        char *token = strtok(linha_temporaria, " ,\t"); // Delimitadores: espaÁo, vÌrgula, tabulaÁ„o
+        char *token = strtok(linha_temporaria, " ,\t"); // Delimitadores: espa√ßo, v√≠rgula, tabula√ß√£o
         if (token == NULL) continue;
 
-        // Verifica se o primeiro token È um rÛtulo (termina com ':')
+        // Verifica se o primeiro token √© um r√≥tulo (termina com ':')
         char *ponteiro_dois_pontos = strchr(token, ':');
         if (ponteiro_dois_pontos != NULL) {
-            *ponteiro_dois_pontos = '\0'; // Remove o ':' para obter o nome do rÛtulo
+            *ponteiro_dois_pontos = '\0'; // Remove o ':' para obter o nome do r√≥tulo
             adicionar_rotulo(token, endereco_atual);
             
-            // AvanÁa para o prÛximo token, que seria a instruÁ„o (se houver na mesma linha)
+            // Avan√ßa para o pr√≥ximo token, que seria a instru√ß√£o (se houver na mesma linha)
             token = strtok(NULL, " ,\t"); 
-            if (token == NULL) { // RÛtulo em uma linha prÛpria
+            if (token == NULL) { // R√≥tulo em uma linha pr√≥pria
                 continue; 
             }
         }
-        // Se n„o era um rÛtulo ou se havia uma instruÁ„o apÛs o rÛtulo,
-        // esta linha contÈm uma instruÁ„o que ocupar· 4 bytes.
+        // Se n√£o era um r√≥tulo ou se havia uma instru√ß√£o ap√≥s o r√≥tulo,
+        // esta linha cont√©m uma instru√ß√£o que ocupar√° 4 bytes.
         endereco_atual += 4;
     }
     fclose(arquivo_entrada);
 }
 
-// --- FunÁ„o da Segunda Passagem (GeraÁ„o do CÛdigo Bin·rio) ---
-// LÍ o arquivo de entrada novamente, traduz cada instruÁ„o para seu formato bin·rio
-// e escreve o resultado no arquivo de saÌda.
+// --- Fun√ß√£o da Segunda Passagem (Gera√ß√£o do C√≥digo Bin√°rio) ---
+// L√™ o arquivo de entrada novamente, traduz cada instru√ß√£o para seu formato bin√°rio
+// e escreve o resultado no arquivo de sa√≠da.
 void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo_saida) {
     FILE *arquivo_entrada = NULL;
     FILE *arquivo_saida = NULL;
     char linha[256];
-    int endereco_atual = 0; // EndereÁo da instruÁ„o atual em bytes
+    int endereco_atual = 0; // Endere√ßo da instru√ß√£o atual em bytes
 
     arquivo_entrada = fopen(nome_arquivo_entrada, "r");
     if (arquivo_entrada == NULL) {
@@ -155,18 +155,18 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
 
     arquivo_saida = fopen(nome_arquivo_saida, "w");
     if (arquivo_saida == NULL) {
-        perror("Erro ao abrir o arquivo de saÌda");
+        perror("Erro ao abrir o arquivo de sa√≠da");
         fclose(arquivo_entrada);
         return;
     }
 
     while (fgets(linha, sizeof(linha), arquivo_entrada) != NULL) {
-        // Remove nova linha e espaÁos em branco no final
+        // Remove nova linha e espa√ßos em branco no final
         linha[strcspn(linha, "\n\r")] = 0;
         char *inicio_linha = linha;
         while (*inicio_linha == ' ' || *inicio_linha == '\t') inicio_linha++;
 
-        // Ignora linhas vazias ou coment·rios
+        // Ignora linhas vazias ou coment√°rios
         if (strlen(inicio_linha) == 0 || inicio_linha[0] == '#' || inicio_linha[0] == ';') {
             continue;
         }
@@ -178,72 +178,72 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
         if (token == NULL) continue;
 
         char *instrucao_mnemonica = token;
-        // Se o primeiro token for um rÛtulo, pegue o prÛximo token como a instruÁ„o
+        // Se o primeiro token for um r√≥tulo, pegue o pr√≥ximo token como a instru√ß√£o
         if (strchr(instrucao_mnemonica, ':') != NULL) {
             instrucao_mnemonica = strtok(NULL, " ,\t");
-            if (instrucao_mnemonica == NULL) { // Linha continha apenas um rÛtulo
+            if (instrucao_mnemonica == NULL) { // Linha continha apenas um r√≥tulo
                 continue;
             }
         }
         
-        uint32_t binario_instrucao = 0; // Valor bin·rio da instruÁ„o
-        int instrucao_valida = 1;       // Flag para verificar se a instruÁ„o foi processada corretamente
+        uint32_t binario_instrucao = 0; // Valor bin√°rio da instru√ß√£o
+        int instrucao_valida = 1;       // Flag para verificar se a instru√ß√£o foi processada corretamente
 
-        // --- InstruÁıes tipo R ---
+        // --- Instru√ß√µes tipo R ---
         // Formato: funct7 | rs2 | rs1 | funct3 | rd | opcode
         if (strcmp(instrucao_mnemonica, "add") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
-            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'add'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'add'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b000 << 12) | (rd << 7) | 0b0110011;
         } else if (strcmp(instrucao_mnemonica, "sub") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
-            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'sub'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'sub'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0100000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b000 << 12) | (rd << 7) | 0b0110011;
         } else if (strcmp(instrucao_mnemonica, "xor") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
-            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'xor'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'xor'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b100 << 12) | (rd << 7) | 0b0110011;
         } else if (strcmp(instrucao_mnemonica, "or") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
-            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'or'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'or'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b110 << 12) | (rd << 7) | 0b0110011;
         } else if (strcmp(instrucao_mnemonica, "and") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
-            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'and'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'and'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b111 << 12) | (rd << 7) | 0b0110011;
-        // InstruÁıes de shift (tipo R, mas com shamt no lugar de rs2 para o opcode especÌfico)
+        // Instru√ß√µes de shift (tipo R, mas com shamt no lugar de rs2 para o opcode espec√≠fico)
         // Formato SLLI/SRLI: 0000000 | shamt | rs1 | funct3 | rd | OPCODE (OP-IMM-SHIFT)
-        } else if (strcmp(instrucao_mnemonica, "slli") == 0) { // RV32I shamt È de 5 bits [24:20]
+        } else if (strcmp(instrucao_mnemonica, "slli") == 0) { // RV32I shamt √© de 5 bits [24:20]
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *shamt_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int shamt = atoi(shamt_txt);
-            if (rd == -1 || rs1 == -1 || shamt < 0 || shamt > 31) { fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'slli'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || shamt < 0 || shamt > 31) { fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'slli'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (shamt << 20) | (rs1 << 15) | (0b001 << 12) | (rd << 7) | 0b0010011; // Opcode OP-IMM
-        } else if (strcmp(instrucao_mnemonica, "srli") == 0) { // RV32I shamt È de 5 bits [24:20]
+        } else if (strcmp(instrucao_mnemonica, "srli") == 0) { // RV32I shamt √© de 5 bits [24:20]
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *shamt_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int shamt = atoi(shamt_txt);
-            if (rd == -1 || rs1 == -1 || shamt < 0 || shamt > 31) { fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'srli'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || shamt < 0 || shamt > 31) { fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'srli'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = (0b0000000 << 25) | (shamt << 20) | (rs1 << 15) | (0b101 << 12) | (rd << 7) | 0b0010011; // Opcode OP-IMM
 
-        // --- InstruÁıes tipo I ---
+        // --- Instru√ß√µes tipo I ---
         // Formato: immediate[11:0] | rs1 | funct3 | rd | opcode
         } else if (strcmp(instrucao_mnemonica, "addi") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rs1_txt = strtok(NULL, " ,\t"); char *imm_txt = strtok(NULL, " ,\t");
             int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int imm = atoi(imm_txt);
-            if (rd == -1 || rs1 == -1 || imm < -2048 || imm > 2047) { fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'addi'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd == -1 || rs1 == -1 || imm < -2048 || imm > 2047) { fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'addi'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else binario_instrucao = ((imm & 0xFFF) << 20) | (rs1 << 15) | (0b000 << 12) | (rd << 7) | 0b0010011;
         } else if (strcmp(instrucao_mnemonica, "lw") == 0) { // Formato: lw rd, offset(rs1)
             char *rd_txt = strtok(NULL, " ,\t"); char *offset_rs1_txt = strtok(NULL, " ,\t"); // Pega "offset(rs1)"
             char *offset_txt = strtok(offset_rs1_txt, "("); 
             char *rs1_txt = strtok(NULL, ")");
-            if (rd_txt == NULL || offset_txt == NULL || rs1_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv·lido para 'lw'. Use 'lw rd, offset(rs1)'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd_txt == NULL || offset_txt == NULL || rs1_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv√°lido para 'lw'. Use 'lw rd, offset(rs1)'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else {
                 int rd = obter_numero_registrador(rd_txt); int rs1 = obter_numero_registrador(rs1_txt); int offset = atoi(offset_txt);
-                if (rd == -1 || rs1 == -1 || offset < -2048 || offset > 2047) { fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'lw'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+                if (rd == -1 || rs1 == -1 || offset < -2048 || offset > 2047) { fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'lw'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
                 else binario_instrucao = ((offset & 0xFFF) << 20) | (rs1 << 15) | (0b010 << 12) | (rd << 7) | 0b0000011; // Opcode LOAD
             }
         } else if (strcmp(instrucao_mnemonica, "jalr") == 0) { // Formato: jalr rd, rs1, offset  ou jalr rd, offset(rs1)
@@ -267,30 +267,30 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
                     char* fecha_parenteses = strchr(temp_rs1_txt + 1, ')');
                     if (fecha_parenteses) *fecha_parenteses = '\0';
 
-                } else { // Formato jalr rd, rs1 (offset implÌcito 0)
+                } else { // Formato jalr rd, rs1 (offset impl√≠cito 0)
                     rs1 = obter_numero_registrador(arg2_txt);
                     offset = 0;
                 }
             }
 
             if (rd == -1 || rs1 == -1 || offset < -2048 || offset > 2047) {
-                fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'jalr'. Linha: %s\n", endereco_atual, inicio_linha);
+                fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'jalr'. Linha: %s\n", endereco_atual, inicio_linha);
                 instrucao_valida = 0;
             } else {
                 binario_instrucao = ((offset & 0xFFF) << 20) | (rs1 << 15) | (0b000 << 12) | (rd << 7) | 0b1100111; // Opcode JALR
             }
         
-        // --- InstruÁıes tipo S ---
+        // --- Instru√ß√µes tipo S ---
         // Formato: imm[11:5] | rs2 | rs1 | funct3 | imm[4:0] | opcode
         } else if (strcmp(instrucao_mnemonica, "sw") == 0) { // Formato: sw rs2, offset(rs1)
             char *rs2_txt = strtok(NULL, " ,\t"); 
             char *offset_rs1_txt = strtok(NULL, " ,\t"); // Pega "offset(rs1)"
             char *offset_txt = strtok(offset_rs1_txt, "(");
             char *rs1_txt = strtok(NULL, ")");
-            if (rs2_txt == NULL || offset_txt == NULL || rs1_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv·lido para 'sw'. Use 'sw rs2, offset(rs1)'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rs2_txt == NULL || offset_txt == NULL || rs1_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv√°lido para 'sw'. Use 'sw rs2, offset(rs1)'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else {
                 int rs2 = obter_numero_registrador(rs2_txt); int rs1 = obter_numero_registrador(rs1_txt); int offset = atoi(offset_txt);
-                if (rs2 == -1 || rs1 == -1 || offset < -2048 || offset > 2047) { fprintf(stderr, "Erro em 0x%04X: Par‚metro inv·lido para 'sw'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+                if (rs2 == -1 || rs1 == -1 || offset < -2048 || offset > 2047) { fprintf(stderr, "Erro em 0x%04X: Par√¢metro inv√°lido para 'sw'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
                 else {
                     uint32_t imm_11_5 = (offset >> 5) & 0x7F; // bits 11 a 5 do imediato
                     uint32_t imm_4_0  = offset & 0x1F;        // bits 4 a 0 do imediato
@@ -298,24 +298,24 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
                 }
             }
 
-        // --- InstruÁıes tipo B ---
+        // --- Instru√ß√µes tipo B ---
         // Formato: imm[12] | imm[10:5] | rs2 | rs1 | funct3 | imm[4:1] | imm[11] | opcode
         } else if (strcmp(instrucao_mnemonica, "beq") == 0 || strcmp(instrucao_mnemonica, "bne") == 0) {
             char *rs1_txt = strtok(NULL, " ,\t"); char *rs2_txt = strtok(NULL, " ,\t"); char *rotulo_destino_txt = strtok(NULL, " ,\t");
-            if (rs1_txt == NULL || rs2_txt == NULL || rotulo_destino_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv·lido para '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha); instrucao_valida = 0; }
+            if (rs1_txt == NULL || rs2_txt == NULL || rotulo_destino_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv√°lido para '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha); instrucao_valida = 0; }
             else {
                 int rs1 = obter_numero_registrador(rs1_txt); int rs2 = obter_numero_registrador(rs2_txt);
                 int endereco_destino = buscar_endereco_rotulo(rotulo_destino_txt);
-                if (rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha); instrucao_valida = 0; }
-                else if (endereco_destino == -1) { fprintf(stderr, "Erro em 0x%04X: RÛtulo '%s' n„o encontrado. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
+                if (rs1 == -1 || rs2 == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha); instrucao_valida = 0; }
+                else if (endereco_destino == -1) { fprintf(stderr, "Erro em 0x%04X: R√≥tulo '%s' n√£o encontrado. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
                 else {
                     int deslocamento = endereco_destino - endereco_atual; 
-                    // O deslocamento para branches È em m˙ltiplos de 2 bytes (1 bit implÌcito 0 ‡ direita)
-                    // O campo imediato de 13 bits (incluindo o implÌcito) pode representar de -4096 a +4094 bytes.
-                    if (deslocamento % 2 != 0) { fprintf(stderr, "Erro em 0x%04X: Deslocamento do branch '%s' n„o È m˙ltiplo de 2. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
+                    // O deslocamento para branches √© em m√∫ltiplos de 2 bytes (1 bit impl√≠cito 0 √† direita)
+                    // O campo imediato de 13 bits (incluindo o impl√≠cito) pode representar de -4096 a +4094 bytes.
+                    if (deslocamento % 2 != 0) { fprintf(stderr, "Erro em 0x%04X: Deslocamento do branch '%s' n√£o √© m√∫ltiplo de 2. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
                     else if (deslocamento < -4096 || deslocamento > 4094) { fprintf(stderr, "Erro em 0x%04X: Deslocamento do branch '%s' fora do alcance. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0;}
                     else {
-                        // ExtraÁ„o dos bits do imediato conforme formato B
+                        // Extra√ß√£o dos bits do imediato conforme formato B
                         uint32_t imm_12   = (deslocamento >> 12) & 0x1;  // bit 12 do deslocamento
                         uint32_t imm_10_5 = (deslocamento >> 5)  & 0x3F; // bits 10 a 5
                         uint32_t imm_4_1  = (deslocamento >> 1)  & 0xF;  // bits 4 a 1
@@ -328,43 +328,43 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
                 }
             }
         
-        // --- InstruÁıes tipo U ---
+        // --- Instru√ß√µes tipo U ---
         // Formato: immediate[31:12] | rd | opcode
         } else if (strcmp(instrucao_mnemonica, "lui") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *imm_txt = strtok(NULL, " ,\t");
-            if (rd_txt == NULL || imm_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv·lido para 'lui'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd_txt == NULL || imm_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv√°lido para 'lui'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else {
                 int rd = obter_numero_registrador(rd_txt); 
                 long imm_val = strtol(imm_txt, NULL, 0); // Permite hex (0x), octal (0), decimal
                 
                 // LUI carrega um imediato de 20 bits nos bits superiores (31 a 12) de rd.
-                // O valor fornecido (imm_val) È o que vai para esses bits.
-                if (rd == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'lui'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+                // O valor fornecido (imm_val) √© o que vai para esses bits.
+                if (rd == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'lui'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
                 // Verifica se o imediato cabe em 20 bits (signed or unsigned interpretation of immediate can vary by assembler convention, typically it's the direct 20-bit value)
-                // Aqui, vamos assumir que o valor fornecido È o valor exato dos 20 bits superiores.
+                // Aqui, vamos assumir que o valor fornecido √© o valor exato dos 20 bits superiores.
                 else binario_instrucao = ((imm_val & 0xFFFFF) << 12) | (rd << 7) | 0b0110111; // Opcode LUI
             }
 
-        // --- InstruÁıes tipo J (jal) ---
+        // --- Instru√ß√µes tipo J (jal) ---
         // Formato: imm[20] | imm[10:1] | imm[11] | imm[19:12] | rd | opcode
         } else if (strcmp(instrucao_mnemonica, "jal") == 0) {
             char *rd_txt = strtok(NULL, " ,\t"); char *rotulo_destino_txt = strtok(NULL, " ,\t");
-            if (rd_txt == NULL || rotulo_destino_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv·lido para 'jal'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+            if (rd_txt == NULL || rotulo_destino_txt == NULL) { fprintf(stderr, "Erro em 0x%04X: Formato inv√°lido para 'jal'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
             else {
                 int rd = obter_numero_registrador(rd_txt);
                 int endereco_destino = buscar_endereco_rotulo(rotulo_destino_txt);
-                if (rd == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv·lido para 'jal'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
-                else if (endereco_destino == -1) { fprintf(stderr, "Erro em 0x%04X: RÛtulo '%s' n„o encontrado. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
+                if (rd == -1) { fprintf(stderr, "Erro em 0x%04X: Registrador inv√°lido para 'jal'. Linha: %s\n", endereco_atual, inicio_linha); instrucao_valida = 0; }
+                else if (endereco_destino == -1) { fprintf(stderr, "Erro em 0x%04X: R√≥tulo '%s' n√£o encontrado. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
                 else {
                     int deslocamento = endereco_destino - endereco_atual;
-                    // O deslocamento para JAL È em m˙ltiplos de 2 bytes.
-                    // O campo imediato de 21 bits (incluindo o implÌcito 0 ‡ direita) pode representar +/- 1MB.
-                    if (deslocamento % 2 != 0) { fprintf(stderr, "Erro em 0x%04X: Deslocamento do JAL '%s' n„o È m˙ltiplo de 2. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
-                    // 20 bits para o imediato, deslocamento pode ser atÈ 2^20 * 2 bytes = +/-1MB
+                    // O deslocamento para JAL √© em m√∫ltiplos de 2 bytes.
+                    // O campo imediato de 21 bits (incluindo o impl√≠cito 0 √† direita) pode representar +/- 1MB.
+                    if (deslocamento % 2 != 0) { fprintf(stderr, "Erro em 0x%04X: Deslocamento do JAL '%s' n√£o √© m√∫ltiplo de 2. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
+                    // 20 bits para o imediato, deslocamento pode ser at√© 2^20 * 2 bytes = +/-1MB
                     else if (deslocamento < -(1 << 20) || deslocamento >= (1 << 20) ) { fprintf(stderr, "Erro em 0x%04X: Deslocamento JAL '%s' fora do alcance. Linha: %s\n", endereco_atual, rotulo_destino_txt, inicio_linha); instrucao_valida = 0; }
                     else {
-                        // ExtraÁ„o dos bits do imediato conforme formato J
-                        // deslocamento j· È o valor em bytes.
+                        // Extra√ß√£o dos bits do imediato conforme formato J
+                        // deslocamento j√° √© o valor em bytes.
                         uint32_t imm20    = (deslocamento >> 20) & 0x1;    // bit 20 do deslocamento
                         uint32_t imm10_1  = (deslocamento >> 1)  & 0x3FF;  // bits 10 a 1
                         uint32_t imm11    = (deslocamento >> 11) & 0x1;    // bit 11
@@ -376,7 +376,7 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
             }
 
         } else {
-            fprintf(stderr, "InstruÁ„o desconhecida em 0x%04X: '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha);
+            fprintf(stderr, "Instru√ß√£o desconhecida em 0x%04X: '%s'. Linha: %s\n", endereco_atual, instrucao_mnemonica, inicio_linha);
             instrucao_valida = 0;
         }
 
@@ -384,10 +384,10 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
             char byte_binario_txt[9]; // 8 bits + terminador nulo
 
             // Ordem dos bytes: Little-endian (byte menos significativo primeiro)
-            // Byte 0: bits 7-0 da instruÁ„o
-            // Byte 1: bits 15-8 da instruÁ„o
-            // Byte 2: bits 23-16 da instruÁ„o
-            // Byte 3: bits 31-24 da instruÁ„o
+            // Byte 0: bits 7-0 da instru√ß√£o
+            // Byte 1: bits 15-8 da instru√ß√£o
+            // Byte 2: bits 23-16 da instru√ß√£o
+            // Byte 3: bits 31-24 da instru√ß√£o
 
             uint8_t byte0 = (binario_instrucao >> 0)  & 0xFF;
             uint8_t byte1 = (binario_instrucao >> 8)  & 0xFF;
@@ -406,56 +406,89 @@ void segunda_passagem(const char *nome_arquivo_entrada, const char *nome_arquivo
             dec_para_bin_n_bits(8, byte3, byte_binario_txt);
             fprintf(arquivo_saida, "%s\n", byte_binario_txt);
             
-            endereco_atual += 4; // AvanÁa para o prÛximo endereÁo de instruÁ„o
+            endereco_atual += 4; // Avan√ßa para o pr√≥ximo endere√ßo de instru√ß√£o
         } else {
-            // Se a instruÁ„o for inv·lida, n„o incremente o endereÁo_atual aqui
-            // pois a primeira passagem j· contou todas as instruÁıes v·lidas (ou linhas que pareciam instruÁıes).
-            // Se uma instruÁ„o for inv·lida na segunda passagem, algo deu errado ou o erro È na instruÁ„o em si.
-            // A contagem de endereÁo_atual deve ser consistente com a primeira passagem.
-            // Para simplificar, vamos avanÁar o endereÁo_atual de qualquer forma para manter a sincronia,
+            // Se a instru√ß√£o for inv√°lida, n√£o incremente o endere√ßo_atual aqui
+            // pois a primeira passagem j√° contou todas as instru√ß√µes v√°lidas (ou linhas que pareciam instru√ß√µes).
+            // Se uma instru√ß√£o for inv√°lida na segunda passagem, algo deu errado ou o erro √© na instru√ß√£o em si.
+            // A contagem de endere√ßo_atual deve ser consistente com a primeira passagem.
+            // Para simplificar, vamos avan√ßar o endere√ßo_atual de qualquer forma para manter a sincronia,
             // mas idealmente, um erro aqui deveria parar a montagem ou ser tratado de forma mais robusta.
-            // Para este exemplo, se uma instruÁ„o for inv·lida, ela n„o ser· escrita no arquivo de saÌda
-            // e o endereÁo_atual continua sendo incrementado para a prÛxima linha do arquivo de entrada.
-             endereco_atual += 4; // Mesmo que inv·lida, contamos para manter o endereÁo_atual sincronizado com a primeira passagem
+            // Para este exemplo, se uma instru√ß√£o for inv√°lida, ela n√£o ser√° escrita no arquivo de sa√≠da
+            // e o endere√ßo_atual continua sendo incrementado para a pr√≥xima linha do arquivo de entrada.
+             endereco_atual += 4; // Mesmo que inv√°lida, contamos para manter o endere√ßo_atual sincronizado com a primeira passagem
         }
     }
 
     fclose(arquivo_entrada);
     fclose(arquivo_saida);
-    printf("Montagem concluÌda! Arquivo '%s' gerado.\n", nome_arquivo_saida);
+    printf("Montagem conclu√≠da! Arquivo '%s' gerado.\n", nome_arquivo_saida);
 }
 
 int main(int argc, char *argv[]) {
     const char *nome_arquivo_entrada = NULL;
     const char *nome_arquivo_saida = NULL;
 
+    // Verifica o n√∫mero de argumentos para determinar os nomes dos arquivos
     if (argc == 2) { // Apenas o arquivo de entrada foi fornecido
         nome_arquivo_entrada = argv[1];
-        nome_arquivo_saida = "resposta.txt"; // Nome padr„o para o arquivo de saÌda
-        printf("INFO: Nome do arquivo de saÌda n„o fornecido. Usando '%s' como padr„o.\n\n", nome_arquivo_saida);
+        nome_arquivo_saida = "resposta.mif"; 
+        printf("INFO: Nome do arquivo de sa√≠da n√£o fornecido. Usando '%s' como padr√£o.\n\n", nome_arquivo_saida);
     } else if (argc == 3) { // Ambos os arquivos foram fornecidos
         nome_arquivo_entrada = argv[1];
-        nome_arquivo_saida = argv[2];
-    } else { // N˙mero incorreto de argumentos
-        fprintf(stderr, "Uso: %s <arquivo_entrada.asm> [nome_arquivo_saida.txt]\n", argv[0]);
-        fprintf(stderr, "Se [nome_arquivo_saida.txt] n„o for especificado, ser· usado 'resposta.txt' por padr„o.\n");
-        return 1;
+        nome_arquivo_saida = argv[2]; // O usu√°rio especifica o nome completo, incluindo a extens√£o
+    } else { // N√∫mero incorreto de argumentos
+        fprintf(stderr, "Uso: %s <arquivo_entrada.asm> [nome_arquivo_saida.mif]\n", argv[0]);
+        fprintf(stderr, "Se [nome_arquivo_saida.mif] n√£o for especificado, ser√° usado 'resposta.mif' por padr√£o.\n");
+        return 1; // Termina o programa se o uso for incorreto
     }
 
-    // (Restante da funÁ„o main continua aqui...)
-    // Imprime o nome do arquivo de entrada e seu conte˙do
+    // (O restante da fun√ß√£o main continua como antes)
+    // Imprime o nome do arquivo de entrada e seu conte√∫do
     printf("%s:\n", nome_arquivo_entrada);
-    // ... (cÛdigo para imprimir arquivo de entrada) ...
+    FILE *arquivo_asm_para_imprimir = fopen(nome_arquivo_entrada, "r");
+    if (arquivo_asm_para_imprimir == NULL) {
+        perror("Erro ao abrir arquivo de entrada para leitura inicial");
+        return 1;
+    }
+    char buffer_linha[256];
+    // Zera buffer_linha para evitar problemas com strlen em arquivos vazios ou muito curtos
+    buffer_linha[0] = '\0';
+    while (fgets(buffer_linha, sizeof(buffer_linha), arquivo_asm_para_imprimir)) {
+        fputs(buffer_linha, stdout); // Imprime a linha incluindo sua nova linha
+    }
+    fclose(arquivo_asm_para_imprimir);
+    // Garante uma nova linha ap√≥s o conte√∫do do asm se o arquivo n√£o terminar com uma,
+    // ou para espa√ßamento consistente.
+    if (strlen(buffer_linha) > 0 && buffer_linha[strlen(buffer_linha)-1] != '\n') {
+        printf("\n");
+    }
+    printf("\n"); // Linha extra para separar a listagem do arquivo da pr√≥xima sa√≠da
 
-    // Primeira Passagem: Coleta rÛtulos
+
+    // Primeira Passagem: Coleta r√≥tulos
     primeira_passagem(nome_arquivo_entrada);
 
-    // Segunda Passagem: Monta o cÛdigo e resolve rÛtulos
+    // Segunda Passagem: Monta o c√≥digo e resolve r√≥tulos
     segunda_passagem(nome_arquivo_entrada, nome_arquivo_saida);
 
-    // Imprime o nome do arquivo de saÌda e seu conte˙do
+    // Imprime o nome do arquivo de sa√≠da e seu conte√∫do
     printf("\n%s:\n", nome_arquivo_saida);
-    // ... (cÛdigo para imprimir arquivo de saÌda) ...
+    FILE *arquivo_bin_para_imprimir = fopen(nome_arquivo_saida, "r");
+    if (arquivo_bin_para_imprimir == NULL) {
+        fprintf(stderr, "Aviso: N√£o foi poss√≠vel abrir '%s' para ler seu conte√∫do. Pode n√£o ter sido gerado ou estar vazio devido a erros na montagem.\n", nome_arquivo_saida);
+    } else {
+        char buffer_linha_bin[32]; // Linhas do bin√°rio/mif s√£o curtas
+        buffer_linha_bin[0] = '\0';
+        while (fgets(buffer_linha_bin, sizeof(buffer_linha_bin), arquivo_bin_para_imprimir)) {
+            fputs(buffer_linha_bin, stdout);
+        }
+        fclose(arquivo_bin_para_imprimir);
+         // Garante uma nova linha no final da impress√£o do arquivo de sa√≠da se necess√°rio
+        if (strlen(buffer_linha_bin) > 0 && buffer_linha_bin[strlen(buffer_linha_bin)-1] != '\n') {
+            printf("\n");
+        }
+    }
 
     return 0;
 }
